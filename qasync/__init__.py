@@ -451,8 +451,10 @@ class _QEventLoop:
         for notifier in itertools.chain(
             self._read_notifiers.values(), self._write_notifiers.values()
         ):
-            notifier.setEnabled(False)
-
+            try:
+                notifier.setEnabled(False)
+            except RuntimeError:
+                self.__log_debug("RuntimeError while disabling notifiers. Possibly deleted.")
         self._read_notifiers = None
         self._write_notifiers = None
 
