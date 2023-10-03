@@ -14,7 +14,7 @@ __author__ = (
     "Mark Harviston <mark.harviston@gmail.com>, "
     "Arve Knudsen <arve.knudsen@gmail.com>",
 )
-__version__ = "0.24.0"
+__version__ = "0.24.2"
 __url__ = "https://github.com/CabbageDevelopment/qasync"
 __license__ = "BSD"
 __all__ = ["QEventLoop", "QThreadExecutor", "asyncSlot", "asyncClose"]
@@ -79,8 +79,6 @@ if not QtModule:
 
 if not QtModule:
     raise ImportError("No Qt implementations found")
-
-logger.info("Using Qt Implementation: {}".format(QtModuleName))
 
 QtCore = importlib.import_module(QtModuleName + ".QtCore", package=QtModuleName)
 QtGui = importlib.import_module(QtModuleName + ".QtGui", package=QtModuleName)
@@ -257,7 +255,7 @@ class _SimpleTimer(QtCore.QObject):
         self.__debug_enabled = False
 
     def add_callback(self, handle, delay=0):
-        timerid = self.startTimer(int(delay * 1000))
+        timerid = self.startTimer(int(max(0, delay) * 1000))
         self.__log_debug("Registering timer id %s", timerid)
         assert timerid not in self.__callbacks
         self.__callbacks[timerid] = handle
@@ -378,7 +376,7 @@ class _QEventLoop:
             self.__log_debug("Starting Qt event loop")
             asyncio.events._set_running_loop(self)
             rslt = -1
-            if hasattr(self.__app, 'exec_'):
+            if hasattr(self.__app, "exec_"):
                 rslt = self.__app.exec_()
             else:
                 rslt = self.__app.exec()
